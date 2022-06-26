@@ -1,6 +1,9 @@
 <template>
-  <div class="view login">
-    <form class="login-form">
+  <div
+    class="view login"
+    v-if="state.username === '' || state.username === null"
+  >
+    <form class="login-form" @submit.prevent="login">
       <div class="form-inner">
         <h1>Login to Firechat</h1>
         <label for="username">Username</label>
@@ -8,22 +11,42 @@
           type="text"
           id="username"
           placeholder="Please enter your username..."
+          v-model="inputUsername"
         />
         <input type="submit" value="Login" />
       </div>
     </form>
   </div>
-  <div class="view chat">
+  <div class="view chat" v-else>
     <h1>Chat here</h1>
   </div>
 </template>
 
 <script>
 // import db from "./db";
+import { ref, reactive } from "vue";
 
 export default {
   setup() {
-    return {};
+    const inputUsername = ref("");
+
+    const state = reactive({
+      username: "",
+      message: [],
+    });
+
+    const login = () => {
+      if (inputUsername.value != "" || inputUsername.value != null) {
+        state.username = inputUsername.value;
+        inputUsername.value = "";
+      }
+    };
+
+    return {
+      inputUsername,
+      login,
+      state,
+    };
   },
 };
 </script>
