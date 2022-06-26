@@ -22,7 +22,26 @@
       <button class="logout" @click="logout">Logout</button>
       <h1>Welcome {{ state.username }}</h1>
     </header>
-    <section class="chat-box">// Messages</section>
+    <section class="chat-box">
+      <div
+        v-for="message in state.messages"
+        :key="message.key"
+        :class="
+          message.username == state.username
+            ? 'message current-user'
+            : 'message'
+        "
+      >
+        <div class="message-inner">
+          <div class="username">
+            {{ message.username }}
+          </div>
+          <div class="content">
+            {{ message.content }}
+          </div>
+        </div>
+      </div>
+    </section>
     <footer>
       <form @submit.prevent="sendMessage">
         <input
@@ -38,7 +57,7 @@
 
 <script>
 import db from "./db.js";
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 
 export default {
   setup() {
@@ -69,7 +88,22 @@ export default {
       messagesRef.push(message);
       inputMessage.value = "";
     };
+    onMounted(() => {
+      const messagesRef = db.database().ref("messages");
+      messagesRef.on("value", (snapshot) => {
+        const data = snapshot.val();
+        let messages = [];
 
+        Object.keys(data).forEach((key) => {
+          messages.push({
+            id: key,
+            username: data[key].username,
+            content: data[key].content,
+          });
+        }),
+          (state.messages = messages);
+      });
+    });
     return {
       inputUsername,
       login,
